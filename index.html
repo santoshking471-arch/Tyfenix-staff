@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Login</title>
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(to bottom, #1e3c72, #2a5298);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-card {
+        width: 90%;
+        max-width: 400px;
+        background-color: #ffffffdd;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        text-align: center;
+    }
+
+    .login-card h2 {
+        margin-bottom: 20px;
+        color: #0b2e6f;
+    }
+
+    .login-card input[type="email"],
+    .login-card input[type="password"] {
+        width: 100%;
+        padding: 15px 20px;
+        margin: 10px 0;
+        border-radius: 50px;
+        border: 1px solid #0b2e6f;
+        font-size: 16px;
+        outline: none;
+    }
+
+    .login-card button {
+        width: 100%;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 50px;
+        border: none;
+        background-color: #0b2e6f;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .login-card button:hover {
+        background-color: #15509b;
+    }
+
+    .register-link {
+        color: #0b2e6f;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 15px;
+    }
+
+    #errorMsg {
+        color: red;
+        font-size: 14px;
+    }
+
+    .helpline {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .helpline a {
+        padding: 10px 15px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: #fff;
+        background-color: #0b2e6f;
+        font-weight: bold;
+        transition: background 0.3s;
+    }
+
+    .helpline a:hover {
+        background-color: #15509b;
+    }
+
+    .footer-text {
+        font-size: 12px;
+        color: #333;
+        margin-top: 10px;
+    }
+</style>
+</head>
+<body>
+<div class="login-card">
+    <h2>Staff Login</h2>
+    <input type="email" id="staffEmail" placeholder="Email ID" />
+    <input type="password" id="staffPassword" placeholder="Password" />
+    <div id="errorMsg"></div>
+    <button onclick="staffLogin()">Login</button>
+    <a href="register.html" class="register-link">New Member → Register</a>
+
+    <div class="helpline">
+        <a href="https://wa.me/918817409243" target="_blank">WhatsApp</a>
+        <a href="https://www.instagram.com/tyfenix?igsh=dHl5bjJoOWJ6c3Vx" target="_blank">Instagram</a>
+    </div>
+
+    <div class="footer-text">
+        Helpline: 8817409243
+    </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+<script>
+  // 🔥 FIREBASE CONFIG (same tera)
+const firebaseConfig = {
+  apiKey: "AIzaSyCA49EYDbqUnYu1sXs0ETDMIGaWxtoxXOM",
+  authDomain: "reselling-store-c103e.firebaseapp.com",
+  databaseURL: "https://reselling-store-c103e-default-rtdb.firebaseio.com",
+  projectId: "reselling-store-c103e",
+  storageBucket: "reselling-store-c103e.appspot.com",
+  messagingSenderId: "411682468136",
+  appId: "1:411682468136:web:79cc2b622148f42a62e01d"
+};
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  function staffLogin() {
+    const email = document.getElementById("staffEmail").value.trim();
+    const password = document.getElementById("staffPassword").value;
+    const errorMsg = document.getElementById("errorMsg");
+
+    errorMsg.innerText = "";
+
+    if(!email || !password){
+        errorMsg.innerText = "Please enter email and password.";
+        return;
+    }
+
+    auth.signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+
+      // Check if user is in staff collection AND approved
+      db.collection("staff").doc(user.uid).get()
+        .then(doc => {
+          if(doc.exists && doc.data().approved === true){
+            // Staff approved, allow login
+            window.location.href = "staffDashboard.html";
+          } else {
+            errorMsg.innerText = "Access Denied. User not approved.";
+            auth.signOut();
+          }
+        })
+        .catch(err => {
+            console.error(err);
+            errorMsg.innerText = "Error fetching user data.";
+            auth.signOut();
+        });
+
+    })
+    .catch((error) => {
+      errorMsg.innerText = "User not found or wrong credentials.";
+    });
+  }
+</script>
+</body>
+</html>

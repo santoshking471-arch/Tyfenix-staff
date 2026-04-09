@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Register</title>
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(to bottom, #1e3c72, #2a5298);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .register-card {
+        width: 90%;
+        max-width: 450px;
+        background-color: #ffffffdd;
+        padding: 40px;
+        border-radius: 25px;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        text-align: center;
+    }
+
+    .register-card h2 {
+        margin-bottom: 25px;
+        color: #0b2e6f;
+    }
+
+    .register-card input {
+        width: 100%;
+        padding: 15px 20px;
+        margin: 12px 0;
+        border-radius: 50px;
+        border: 1px solid #0b2e6f;
+        font-size: 16px;
+        outline: none;
+        box-shadow: 0 4px 8px rgba(11,46,111,0.2);
+    }
+
+    .register-card button {
+        width: 100%;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 50px;
+        border: none;
+        background-color: #0b2e6f;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+    }
+
+    .register-card button:hover {
+        background-color: #15509b;
+        transform: translateY(-2px);
+    }
+
+    #errorMsg {
+        color: red;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    #successMsg {
+        color: green;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+</style>
+</head>
+<body>
+
+<div class="register-card">
+    <h2>Staff Registration</h2>
+    <input type="text" id="fullName" placeholder="Full Name" />
+    <input type="text" id="mobileNumber" placeholder="Mobile Number" />
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <input type="password" id="confirmPassword" placeholder="Confirm Password" />
+    <div id="errorMsg"></div>
+    <div id="successMsg"></div>
+    <button onclick="registerStaff()">Register</button>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+<script>
+  // Firebase config (replace with your config)
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "SENDER_ID",
+    appId: "APP_ID"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  function registerStaff() {
+    const fullName = document.getElementById("fullName").value.trim();
+    const mobile = document.getElementById("mobileNumber").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const errorMsg = document.getElementById("errorMsg");
+    const successMsg = document.getElementById("successMsg");
+
+    errorMsg.innerText = "";
+    successMsg.innerText = "";
+
+    if(!fullName || !mobile || !email || !password || !confirmPassword){
+        errorMsg.innerText = "Please fill all fields.";
+        return;
+    }
+
+    if(password !== confirmPassword){
+        errorMsg.innerText = "Passwords do not match.";
+        return;
+    }
+
+    // Create user in Firebase Auth
+    auth.createUserWithEmailAndPassword(email, password)
+    .then(userCredential => {
+        const user = userCredential.user;
+        // Add user info to 'staffRequests' collection for admin approval
+        db.collection("staffRequests").doc(user.uid).set({
+            fullName: fullName,
+            mobile: mobile,
+            email: email,
+            approved: false, // Admin needs to approve
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+            successMsg.innerText = "Registration request sent! Wait for admin approval.";
+            auth.signOut(); // Prevent login until approved
+        });
+    })
+    .catch(error => {
+        errorMsg.innerText = error.message;
+    });
+  }
+</script>
+
+</body>
+</html>

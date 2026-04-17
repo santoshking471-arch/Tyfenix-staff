@@ -2,111 +2,114 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Staff Login</title>
 <style>
-    /* Universal fix for all elements */
     * {
         box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent; /* Mobile tap highlight remove */
+        user-select: none; /* Text selection disable for app feel */
     }
 
     body, html {
         margin: 0;
         padding: 0;
         height: 100%;
-        font-family: Arial, sans-serif;
-        background: linear-gradient(to bottom, #1e3c72, #2a5298);
+        width: 100%;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         display: flex;
         justify-content: center;
         align-items: center;
+        overflow: hidden; /* Scroll lock */
     }
 
     .login-card {
-        width: 90%;
-        max-width: 400px;
-        background-color: rgba(255, 255, 255, 0.9);
-        padding: 30px;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        width: 85%;
+        max-width: 350px; /* Slimmer card */
+        background: rgba(255, 255, 255, 0.95);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
         text-align: center;
     }
 
     .login-card h2 {
-        margin-top: 0;
-        margin-bottom: 20px;
+        margin: 0 0 20px 0;
         color: #0b2e6f;
+        font-size: 22px;
+        font-weight: 600;
     }
 
-    .login-card input[type="email"],
-    .login-card input[type="password"] {
-        width: 100%; /* Ab yeh div se bahar nahi jayega */
-        padding: 15px 20px;
-        margin: 10px 0;
-        border-radius: 50px;
-        border: 1px solid #0b2e6f;
-        font-size: 16px;
+    .login-card input {
+        width: 100%;
+        padding: 12px 18px;
+        margin: 8px 0;
+        border-radius: 8px; /* Slightly less round for slim look */
+        border: 1px solid #ddd;
+        font-size: 15px;
         outline: none;
-        display: block;
+        transition: border 0.3s;
+        user-select: text; /* Input me text allow rahega */
+    }
+
+    .login-card input:focus {
+        border-color: #0b2e6f;
     }
 
     .login-card button {
         width: 100%;
-        padding: 15px;
-        margin: 15px 0;
-        border-radius: 50px;
+        padding: 12px;
+        margin: 15px 0 10px 0;
+        border-radius: 8px;
         border: none;
         background-color: #0b2e6f;
         color: #fff;
         font-size: 16px;
+        font-weight: bold;
         cursor: pointer;
-        transition: background 0.3s;
-    }
-
-    .login-card button:hover {
-        background-color: #15509b;
+        box-shadow: 0 4px 10px rgba(11, 46, 111, 0.3);
     }
 
     .register-link {
         color: #0b2e6f;
         text-decoration: none;
         display: block;
-        margin-bottom: 15px;
-        font-size: 14px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        font-weight: 500;
     }
 
     #errorMsg {
-        color: #d9534f;
-        font-size: 14px;
-        margin-bottom: 10px;
-        min-height: 18px;
+        color: #d93025;
+        font-size: 12px;
+        height: 15px;
+        margin-bottom: 5px;
     }
 
     .helpline {
         display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 10px;
+        justify-content: space-between;
+        gap: 8px;
     }
 
     .helpline a {
         flex: 1;
-        padding: 10px 5px;
-        border-radius: 10px;
+        padding: 8px;
+        border-radius: 6px;
         text-decoration: none;
         color: #fff;
-        background-color: #0b2e6f;
-        font-weight: bold;
-        font-size: 14px;
-        transition: background 0.3s;
+        background-color: #333; /* Neutral dark for options */
+        font-size: 12px;
+        font-weight: 500;
     }
 
-    .helpline a:hover {
-        background-color: #15509b;
-    }
+    .helpline a:first-child { background-color: #25D366; } /* WhatsApp Green */
+    .helpline a:last-child { background-color: #E1306C; } /* Insta Pink */
 
     .footer-text {
-        font-size: 12px;
-        color: #333;
+        font-size: 11px;
+        color: #666;
         margin-top: 15px;
     }
 </style>
@@ -115,11 +118,12 @@
 
 <div class="login-card">
     <h2>Staff Login</h2>
-    <input type="email" id="staffEmail" placeholder="Email ID" required />
-    <input type="password" id="staffPassword" placeholder="Password" required />
     <div id="errorMsg"></div>
+    <input type="email" id="staffEmail" placeholder="Email ID" spellcheck="false" />
+    <input type="password" id="staffPassword" placeholder="Password" />
+    
     <button onclick="staffLogin()">Login</button>
-    <a href="register.html" class="register-link">New Member → Register</a>
+    <a href="register.html" class="register-link">Create Account →</a>
 
     <div class="helpline">
         <a href="https://wa.me/918817409243" target="_blank">WhatsApp</a>
@@ -127,7 +131,7 @@
     </div>
 
     <div class="footer-text">
-        Helpline: 8817409243
+        Support: +91 8817409243
     </div>
 </div>
 
@@ -136,7 +140,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-  // 🔥 FIREBASE CONFIG
   const firebaseConfig = {
     apiKey: "AIzaSyCA49EYDbqUnYu1sXs0ETDMIGaWxtoxXOM",
     authDomain: "reselling-store-c103e.firebaseapp.com",
@@ -147,7 +150,6 @@
     appId: "1:411682468136:web:79cc2b622148f42a62e01d"
   };
 
-  // Initialize Firebase (Compat version)
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
@@ -157,39 +159,27 @@
     const password = document.getElementById("staffPassword").value;
     const errorMsg = document.getElementById("errorMsg");
 
-    errorMsg.innerText = "";
-
     if(!email || !password){
-        errorMsg.innerText = "Please enter email and password.";
+        errorMsg.innerText = "Fields cannot be empty";
         return;
     }
 
     auth.signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
-      const user = userCredential.user;
-
-      // Check if user is in staff collection AND approved
-      db.collection("staff").doc(user.uid).get()
+      db.collection("staff").doc(userCredential.user.uid).get()
         .then(doc => {
           if(doc.exists && doc.data().approved === true){
             window.location.href = "staffDashboard.html";
           } else {
-            errorMsg.innerText = "Access Denied. User not approved.";
+            errorMsg.innerText = "Account not approved yet.";
             auth.signOut();
           }
         })
-        .catch(err => {
-            console.error(err);
-            errorMsg.innerText = "Error fetching user data.";
-            auth.signOut();
-        });
     })
     .catch((error) => {
-      errorMsg.innerText = "User not found or wrong credentials.";
-      console.error(error);
+      errorMsg.innerText = "Invalid credentials.";
     });
   }
 </script>
-
 </body>
 </html>

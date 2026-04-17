@@ -52,6 +52,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
+  // Same Config
   const firebaseConfig = {
     apiKey: "AIzaSyCA49EYDbqUnYu1sXs0ETDMIGaWxtoxXOM",
     authDomain: "reselling-store-c103e.firebaseapp.com",
@@ -71,44 +72,61 @@
     const mobile = document.getElementById("mobileNumber").value.trim();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
     
     const errorMsg = document.getElementById("errorMsg");
     const successMsg = document.getElementById("successMsg");
 
-    if(!fullName || !mobile || !email || !password || !confirmPassword){
-        errorMsg.innerText = "All fields are required!";
-        return;
-    }
-    if(password !== confirmPassword){
-        errorMsg.innerText = "Passwords don't match!";
+    if(!fullName || !mobile || !email || !password){
+        alert("Bhai saari details bharo!");
         return;
     }
 
-    errorMsg.innerText = "Sending Request...";
+    errorMsg.innerText = "Creating Account...";
 
+    // Step 1: Pehle Auth User banao
     auth.createUserWithEmailAndPassword(email, password)
-    .then(userCredential => {
-        const uid = userCredential.user.uid;
+    .then((userCredential) => {
+        const user = userCredential.user;
         
-        // Data 'staffRequests' collection mein jayega approval ke liye
-        db.collection("staffRequests").doc(uid).set({
+        errorMsg.innerText = "Account Created! Saving to Database...";
+
+        // Step 2: Automatic Collection & Document Creation
+        // Hum .add() use karenge taaki Firebase khud manage kare
+        db.collection("staffRequests").add({
+            uid: user.uid,
             fullName: fullName,
             mobile: mobile,
             email: email,
-            uid: uid,
             status: "pending",
+            approved: false,
+            blocked: false,
+            requestDate: new Date().toISOString(),
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         })
-        .then(() => {
-            successMsg.innerText = "Request Sent! Wait for Admin Approval.";
-            errorMsg.innerText = "";
-            auth.signOut();
-            setTimeout(() => { window.location.href = "index.html"; }, 3000);
+        .then((docRef) => {
+            console.log("Document written with ID: ", docRef.id);
+            successMsg.innerText = "Request Sent Successfully! 🚀";
+            
+            // Logout and Redirect
+            setTimeout(() => {
+                auth.signOut().then(() => {
+                    window.location.href = "index.html";
+                });
+            }, 2000);
+        })
+        .catch((error) => {
+            console.error("Firestore Error: ", error);
+            alert("Database Error: " + error.message);
+            errorMsg.innerText = "DB Error: " + error.message;
         });
     })
-    .catch(error => { errorMsg.innerText = error.message; });
+    .catch((error) => {
+        console.error("Auth Error: ", error);
+        alert("Auth Error: " + error.message);
+        errorMsg.innerText = error.message;
+    });
   }
 </script>
+
 </body>
 </html>

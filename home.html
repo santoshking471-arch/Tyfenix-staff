@@ -60,12 +60,13 @@
         <div class="card"><h3>Today</h3><p id="todayEarning">₹0</p></div>
     </div>
 
-    <div class="btn-group">
-        <button class="btn" onclick="alert('Upload Product Page')">Upload Product</button>
-        <button class="btn" onclick="alert('Orders Page')">Orders</button>
-        <button class="btn" onclick="alert('Payment Page')">Payment Status</button>
-    </div>
+        <div class="btn-group">
+    <button class="btn" onclick="goToUpload()">Upload Product</button>
+    <button class="btn" onclick="goToOrders()">Orders</button>
+    <button class="btn" onclick="goToPayment()">Payment Status</button>
 </div>
+
+
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -88,6 +89,21 @@
         if(!user) { window.location.href = "index.html"; return; }
         loadData(user.uid);
     });
+
+    // 1. Upload Product Page par jane ke liye
+function goToUpload() {
+    window.location.href = "upload.html";
+}
+
+// 2. Orders Page par jane ke liye
+function goToOrders() {
+    window.location.href = "orders.html";
+}
+
+// 3. Payment Status Page par jane ke liye
+function goToPayment() {
+    window.location.href = "payment.html";
+}
 
     function loadData(uid) {
         db.collection("products").where("staffId", "==", uid).onSnapshot(s => { document.getElementById("myProducts").innerText = s.size; });

@@ -5,103 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Staff Login</title>
 <style>
-    * {
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
-        user-select: none;
-    }
-
-    body, html {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-        font-family: 'Segoe UI', Roboto, sans-serif;
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-    }
-
-    .login-card {
-        width: 85%;
-        max-width: 340px;
-        background: rgba(255, 255, 255, 0.98);
-        padding: 25px;
-        border-radius: 15px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-        text-align: center;
-    }
-
-    .login-card h2 {
-        margin: 0 0 15px 0;
-        color: #0b2e6f;
-        font-size: 20px;
-    }
-
-    #errorMsg {
-        color: #d93025;
-        font-size: 12px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        min-height: 15px;
-    }
-
-    .login-card input {
-        width: 100%;
-        padding: 12px 15px;
-        margin: 6px 0;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 15px;
-        outline: none;
-        user-select: text;
-    }
-
-    .login-card input:focus { border-color: #0b2e6f; }
-
-    .login-card button {
-        width: 100%;
-        padding: 12px;
-        margin: 15px 0 10px 0;
-        border-radius: 8px;
-        border: none;
-        background-color: #0b2e6f;
-        color: #fff;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    .register-link {
-        color: #0b2e6f;
-        text-decoration: none;
-        display: block;
-        margin-bottom: 20px;
-        font-size: 13px;
-    }
-
-    .helpline {
-        display: flex;
-        gap: 8px;
-    }
-
-    .helpline a {
-        flex: 1;
-        padding: 8px;
-        border-radius: 6px;
-        text-decoration: none;
-        color: #fff;
-        font-size: 11px;
-        font-weight: bold;
-    }
-
-    .footer-text {
-        font-size: 11px;
-        color: #666;
-        margin-top: 15px;
-    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+    body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); display: flex; justify-content: center; align-items: center; overflow: hidden; }
+    .login-card { width: 85%; max-width: 340px; background: rgba(255, 255, 255, 0.98); padding: 25px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); text-align: center; }
+    .login-card h2 { margin: 0 0 15px 0; color: #0b2e6f; font-size: 20px; }
+    #errorMsg { color: #d93025; font-size: 12px; font-weight: bold; margin-bottom: 10px; min-height: 15px; }
+    .login-card input { width: 100%; padding: 12px 15px; margin: 6px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 15px; outline: none; user-select: text; }
+    .login-card button { width: 100%; padding: 12px; margin: 15px 0 10px 0; border-radius: 8px; border: none; background-color: #0b2e6f; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .register-link { color: #0b2e6f; text-decoration: none; display: block; margin-bottom: 20px; font-size: 13px; }
+    .helpline { display: flex; gap: 8px; }
+    .helpline a { flex: 1; padding: 8px; border-radius: 6px; text-decoration: none; color: #fff; font-size: 11px; font-weight: bold; }
+    .footer-text { font-size: 11px; color: #666; margin-top: 15px; }
 </style>
 </head>
 <body>
@@ -154,34 +68,25 @@
     .then((userCredential) => {
       const uid = userCredential.user.uid;
 
-      // Rule Check: Database se check karo
       db.collection("staff").doc(uid).get()
       .then(doc => {
         if (!doc.exists) {
-          // Rule 3: User data not found in staff collection
-          errorMsg.innerText = "User not found!";
+          errorMsg.innerText = "Access Denied: Not a staff member!";
           auth.signOut();
           return;
         }
 
         const userData = doc.data();
 
-        // Rule 2: Blocked Check
+        // Sirf Blocked check karenge
         if (userData.blocked === true) {
           errorMsg.innerText = "Your account is BLOCKED!";
           auth.signOut();
           return;
         }
 
-        // Rule 1: Admin Approval Check
-        if (userData.approved !== true) {
-          errorMsg.innerText = "Wait for Admin Approval!";
-          auth.signOut();
-          return;
-        }
-
-        // Sab sahi hai toh login
-        window.location.href = "staffDashboard.html";
+        // Login success, redirect to home.html
+        window.location.href = "home.html";
       })
       .catch(e => {
         errorMsg.innerText = "Database Error!";
@@ -189,7 +94,6 @@
       });
     })
     .catch((error) => {
-      // Rule 3: Firebase Auth mein hi nahi mila
       errorMsg.innerText = "Invalid Email or Password!";
     });
   }

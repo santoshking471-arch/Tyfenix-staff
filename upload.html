@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload Product | TYFENIX</title>
+<style>
+    :root { --bg: #ffffff; --text: #1e293b; --primary: #38bdf8; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #0f172a; --text: #f8fafc; } }
+    body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
+    .box { width: 100%; max-width: 400px; background: rgba(128,128,128,0.05); padding: 25px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.2); }
+    input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: none; background: rgba(128,128,128,0.1); color: var(--text); }
+    button { width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(135deg, #0b2e6f, #38bdf8); color: white; font-weight: bold; cursor: pointer; }
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+
+<div class="box">
+    <h2>➕ Add Product</h2>
+    <input type="text" id="name" placeholder="Product Name">
+    <input type="number" id="price" placeholder="Price">
+    <input type="file" id="imgFile" accept="image/*">
+    <button onclick="uploadProduct()">Upload Product 🚀</button>
+</div>
+
+<script>
+const firebaseConfig = { apiKey: "AIzaSyCA49EYDbqUnYu1sXs0ETDMIGaWxtoxXOM", authDomain: "reselling-store-c103e.firebaseapp.com", projectId: "reselling-store-c103e", storageBucket: "reselling-store-c103e.appspot.com", messagingSenderId: "411682468136", appId: "1:411682468136:web:79cc2b622148f42a62e01d" };
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+let currentUser = null;
+auth.onAuthStateChanged(user => {
+    if(!user) window.location.href = "index.html";
+    currentUser = user;
+});
+
+async function uploadProduct() {
+    const name = document.getElementById("name").value;
+    const price = document.getElementById("price").value;
+    const file = document.getElementById("imgFile").files[0];
+    
+    if(!name || !price || !file) return alert("Sab bharo bhai! 😒");
+
+    // 1. Upload File to Storage
+    const storageRef = storage.ref('products/' + Date.now() + file.name);
+    await storageRef.put(file);
+    const url = await storageRef.getDownloadURL();
+
+    // 2. Save to Firestore with staffId (Personal Collection Logic)
+    db.collection("products").add({
+        name: name,
+        price: Number(price),
+        image: url,
+        staffId: currentUser.uid, // Sirf ye user ka data hai
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+        alert("Upload Success! 😎");
+        location.reload();
+    });
+}
+</script>
+</body>
+</html>
+
